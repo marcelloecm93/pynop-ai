@@ -1,0 +1,75 @@
+llm:
+  provider: openai
+  model: gpt-4o-mini
+  api_key: ${OPENAI_API_KEY}
+
+guards:
+  input:
+    on_guard_fail: reject         # reject | return_canned | include_reason
+    on_guard_error: reject        # reject | pass
+    guards:
+      - type: guardrails_ai
+        validators:
+          - name: DetectPII
+            on_fail: exception
+            pii_entities:
+              - EMAIL_ADDRESS
+              - PHONE_NUMBER
+              - PERSON
+              - US_SSN
+              - US_PASSPORT
+              - CREDIT_CARD
+              - IBAN_CODE
+              - IP_ADDRESS
+      - type: nemo
+        rails:
+          - jailbreak
+          - topic_control:
+              allowed: [coding, data science]
+              denied: [politics, violence]
+  output:
+    on_guard_fail: reject             # slot default (guards inherit unless they override)
+    on_guard_error: reject
+    guards:
+      - type: guardrails_ai
+        on_guard_fail: reask          # override: reask on toxicity failure
+        max_reask: 2                  # retry up to 2 times (default)
+        # reask_instruction: "Your previous response was rejected: {reason}. Please try again."
+        validators:
+          - name: ToxicLanguage
+            on_fail: exception
+      - type: guardrails_ai
+        # inherits slot default: reject — no reask for PII
+        validators:
+          - name: DetectPII
+            on_fail: exception
+            pii_entities:
+              - EMAIL_ADDRESS
+              - PHONE_NUMBER
+              - PERSON
+              - US_SSN
+              - US_PASSPORT
+              - CREDIT_CARD
+              - IBAN_CODE
+              - IP_ADDRESS
+      - type: nemo
+        rails:
+          - content_safety
+          - pii
+
+eval:
+  max_issues: 0
+  ignore_severities: [minor]  # default for both rools
+  garak:
+    max_issues: 0
+    ignore_severities: [] # stricter for garak - no ignoring
+  giskard:
+    max_issues: 3
+    ignore_severities: [minor]
+
+tracing:
+  enabled: true
+  provider: langfuse
+  public_key: ${LANGFUSE_PUBLIC_KEY}
+  secret_key: ${LANGFUSE_SECRET_KEY}
+  base_url: https://us.cloud.langfuse.com

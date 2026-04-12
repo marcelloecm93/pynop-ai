@@ -1,0 +1,88 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pynop-ai"
+version = "1.0.0"
+description = "Async LLM safety pipeline with input/output guardrails (Guardrails-AI, NeMo) and Langfuse tracing."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Marcello Miranda", email = "marcelloecm93@gmail.com" },
+]
+keywords = [
+    "llm",
+    "safety",
+    "guardrails",
+    "nemo",
+    "langfuse",
+    "observability",
+    "ai",
+    "pipeline",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+dependencies = [
+    "guardrails-ai>=0.9.3",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.3.0",
+    "langfuse>=4.0.4",
+    "pyyaml>=6.0.3",
+]
+
+[project.optional-dependencies]
+anthropic = ["langchain-anthropic>=0.3.0"]
+google = ["langchain-google-genai>=2.1.0"]
+nemo = ["nemoguardrails>=0.21.0"]
+eval = [
+    "garak>=0.12.0",
+    "giskard>=2.19.1",
+]
+all = [
+    "langchain-anthropic>=0.3.0",
+    "langchain-google-genai>=2.1.0",
+    "nemoguardrails>=0.21.0",
+    "garak>=0.12.0",
+    "giskard>=2.19.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/marcelloecm93/pynop"
+Repository = "https://github.com/marcelloecm93/pynop"
+Issues = "https://github.com/marcelloecm93/pynop/issues"
+Changelog = "https://github.com/marcelloecm93/pynop/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pynop"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/pynop",
+    "/README.md",
+    "/LICENSE",
+    "/CHANGELOG.md",
+    "/pyproject.toml",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    # All extras included for development/testing
+    "langchain-anthropic>=0.3.0",
+    "langchain-google-genai>=2.1.0",
+    "nemoguardrails>=0.21.0",
+    "garak>=0.12.0",
+    "giskard>=2.19.1",
+]

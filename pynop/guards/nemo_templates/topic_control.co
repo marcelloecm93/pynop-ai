@@ -1,0 +1,9 @@
+define flow check topic
+  $$allowed_topics = "$allowed"
+  $$denied_topics = "$denied"
+
+  $$is_allowed = execute check_topic_allowed(user_message=$$user_message, allowed_topics=$$allowed_topics, denied_topics=$$denied_topics)
+
+  if not $$is_allowed
+    bot refuse to respond
+    stop

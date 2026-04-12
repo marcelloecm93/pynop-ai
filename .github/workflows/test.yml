@@ -1,0 +1,46 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: pytest (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Sync dependencies (core + dev + all extras)
+        run: uv sync --all-extras
+
+      - name: Install Guardrails Hub validators
+        env:
+          GUARDRAILS_TOKEN: ${{ secrets.GUARDRAILS_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          uv run guardrails configure --token "$GUARDRAILS_TOKEN" --disable-metrics --disable-remote-inferencing
+          uv run guardrails hub install hub://guardrails/detect_pii
+          uv run guardrails hub install hub://guardrails/toxic_language
+
+      - name: Run unit tests
+        run: uv run pytest --ignore=tests/integration -q
