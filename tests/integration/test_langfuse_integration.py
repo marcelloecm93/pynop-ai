@@ -10,20 +10,10 @@ import pytest
 
 from pynop import LatencyBenchmark, SafetyPipeline
 
-pytestmark = [
-    pytest.mark.skipif(
-        os.environ.get("PYNOP_INTEGRATION") != "1",
-        reason="Integration tests require PYNOP_INTEGRATION=1",
-    ),
-    pytest.mark.skipif(
-        not os.environ.get("OPENAI_API_KEY"),
-        reason="Requires OPENAI_API_KEY",
-    ),
-    pytest.mark.skipif(
-        not (os.environ.get("LANGFUSE_PUBLIC_KEY") and os.environ.get("LANGFUSE_SECRET_KEY")),
-        reason="Requires LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY",
-    ),
-]
+pytestmark = pytest.mark.skipif(
+    not (os.environ.get("LANGFUSE_PUBLIC_KEY") and os.environ.get("LANGFUSE_SECRET_KEY")),
+    reason="Requires LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY",
+)
 
 
 @pytest.fixture

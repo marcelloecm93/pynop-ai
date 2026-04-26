@@ -27,6 +27,25 @@ jobs:
       - name: Set up Python 3.12
         run: uv python install 3.12
 
+      - name: Verify required secrets are configured
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          GUARDRAILS_TOKEN: ${{ secrets.GUARDRAILS_TOKEN }}
+        run: |
+          missing=()
+          for var in OPENAI_API_KEY LANGFUSE_PUBLIC_KEY LANGFUSE_SECRET_KEY GUARDRAILS_TOKEN; do
+            if [ -z "${!var}" ]; then
+              missing+=("$var")
+            fi
+          done
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Integration workflow missing required repo secrets: ${missing[*]}"
+            echo "Configure them under repo Settings → Secrets and variables → Actions, then re-run."
+            exit 1
+          fi
+
       - name: Sync dependencies (core + dev + all extras)
         run: uv sync --all-extras
 

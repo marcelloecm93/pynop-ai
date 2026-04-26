@@ -3,23 +3,10 @@
 Requires PYNOP_INTEGRATION=1 and real API keys set in environment.
 """
 
-import os
-
 import pytest
 
 from pynop import EvalThreshold, SafetyPipeline
 from pynop.eval import EvalRunner
-
-pytestmark = [
-    pytest.mark.skipif(
-        os.environ.get("PYNOP_INTEGRATION") != "1",
-        reason="Integration tests require PYNOP_INTEGRATION=1",
-    ),
-    pytest.mark.skipif(
-        not os.environ.get("OPENAI_API_KEY"),
-        reason="Integration tests require OPENAI_API_KEY to be set",
-    ),
-]
 
 
 @pytest.fixture
