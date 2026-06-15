@@ -1,8 +1,10 @@
 """Guard latency comparison benchmark."""
 
+import time
 from dataclasses import dataclass, field
 
 from langfuse import Langfuse
+from langfuse.api import NotFoundError
 
 
 @dataclass
@@ -70,6 +72,22 @@ def _compute_stats(name: str, latencies: list[float]) -> SpanStats:
         p99=_percentile(latencies, 99),
         values=latencies,
     )
+
+
+def _fetch_trace(client: Langfuse, trace_id: str, timeout: float = 30.0, interval: float = 2.0):
+    """Fetch a trace, retrying while Langfuse ingests it.
+
+    Langfuse ingestion is asynchronous server-side, so a freshly written trace
+    returns 404 until indexed. Poll until found or ``timeout`` seconds elapse.
+    """
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            return client.api.trace.get(trace_id)
+        except NotFoundError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(interval)
 
 
 def _extract_span_latencies(trace) -> dict[str, list[float]]:
@@ -158,7 +176,7 @@ class LatencyBenchmark:
         total_latencies: list[float] = []
 
         for trace_id in trace_ids:
-            trace = client.api.trace.get(trace_id)
+            trace = _fetch_trace(client, trace_id)
             if trace.latency is not None:
                 total_latencies.append(trace.latency)
             for name, values in _extract_span_latencies(trace).items():

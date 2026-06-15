@@ -4,11 +4,11 @@ Requires PYNOP_INTEGRATION=1 and real Langfuse + OpenAI keys.
 """
 
 import os
-import time
 
 import pytest
 
 from pynop import LatencyBenchmark, SafetyPipeline
+from pynop.benchmark import _fetch_trace
 
 pytestmark = pytest.mark.skipif(
     not (os.environ.get("LANGFUSE_PUBLIC_KEY") and os.environ.get("LANGFUSE_SECRET_KEY")),
@@ -46,11 +46,9 @@ class TestLangfuseIntegration:
 
         assert result.trace_id is not None
 
-        # Allow Langfuse to ingest the trace
-        time.sleep(2)
-
+        # Langfuse ingests asynchronously; poll until the trace is queryable.
         client = traced_pipeline.tracer.client
-        trace = client.api.trace.get(result.trace_id)
+        trace = _fetch_trace(client, result.trace_id)
 
         assert trace.id == result.trace_id
         assert trace.observations is not None
@@ -85,10 +83,8 @@ tracing:
         pipeline_b = SafetyPipeline.from_yaml(str(path))
 
         benchmark = LatencyBenchmark(traced_pipeline, pipeline_b, label_a="A", label_b="B")
+        # benchmark.run polls Langfuse internally until traces are ingested.
         report = await benchmark.run(["Say hello in one word."])
-
-        # Allow Langfuse ingestion
-        time.sleep(2)
 
         assert report.label_a == "A"
         assert report.label_b == "B"
