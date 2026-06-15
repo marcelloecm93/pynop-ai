@@ -320,7 +320,7 @@ class TestPipelineTracing:
 
         mock_tracer = MagicMock()
         mock_trace = MagicMock()
-        mock_trace.id = "trace-test-123"
+        mock_trace.trace_id = "trace-test-123"
         mock_tracer.start_trace.return_value = mock_trace
         mock_tracer.start_span.return_value = MagicMock()
         mock_tracer.enabled = True

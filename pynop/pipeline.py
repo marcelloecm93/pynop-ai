@@ -248,7 +248,7 @@ class SafetyPipeline:
 
         return PipelineResult(
             output=output,
-            trace_id=trace.id if trace else None,
+            trace_id=trace.trace_id if trace else None,
             guarded=bool(self._input_slot.guards or self._output_slot.guards),
         )
 
@@ -299,7 +299,7 @@ class SafetyPipeline:
                 else:
                     guard_cfg = GuardConfig(on_guard_fail=slot.on_guard_fail)
                 on_fail = guard_cfg.on_guard_fail
-                return self._apply_rejection(slot, span_name, on_fail, guard_cfg, result.reason, trace.id if trace else None, i)
+                return self._apply_rejection(slot, span_name, on_fail, guard_cfg, result.reason, trace.trace_id if trace else None, i)
 
         self._tracer.end_span(span, metadata={"passed": True})
         return None

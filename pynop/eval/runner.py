@@ -103,7 +103,7 @@ class EvalRunner:
             return EvalResult(
                 summary="No matching probes found",
                 issues=[],
-                trace_id=trace.id if trace else None,
+                trace_id=trace.trace_id if trace else None,
                 tool="garak",
                 threshold=threshold,
             )
@@ -160,7 +160,7 @@ class EvalRunner:
         return EvalResult(
             summary=summary,
             issues=issues,
-            trace_id=trace.id if trace else None,
+            trace_id=trace.trace_id if trace else None,
             tool="garak",
             threshold=threshold,
         )
@@ -189,7 +189,7 @@ class EvalRunner:
         return EvalResult(
             summary=summary,
             issues=issues,
-            trace_id=trace.id if trace else None,
+            trace_id=trace.trace_id if trace else None,
             tool="giskard",
             threshold=threshold,
         )
