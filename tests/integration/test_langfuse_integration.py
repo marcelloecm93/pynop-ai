@@ -50,7 +50,7 @@ class TestLangfuseIntegration:
         time.sleep(2)
 
         client = traced_pipeline.tracer.client
-        trace = client.trace.get(result.trace_id)
+        trace = client.api.trace.get(result.trace_id)
 
         assert trace.id == result.trace_id
         assert trace.observations is not None

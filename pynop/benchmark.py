@@ -158,7 +158,7 @@ class LatencyBenchmark:
         total_latencies: list[float] = []
 
         for trace_id in trace_ids:
-            trace = client.trace.get(trace_id)
+            trace = client.api.trace.get(trace_id)
             if trace.latency is not None:
                 total_latencies.append(trace.latency)
             for name, values in _extract_span_latencies(trace).items():

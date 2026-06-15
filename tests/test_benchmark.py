@@ -66,7 +66,7 @@ class TestLatencyBenchmark:
             trace.observations = observations
             return trace
 
-        client.trace.get.side_effect = mock_get_trace
+        client.api.trace.get.side_effect = mock_get_trace
         return pipeline
 
     @pytest.mark.asyncio
