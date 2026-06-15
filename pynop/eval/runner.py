@@ -79,6 +79,12 @@ class EvalRunner:
         if not _config.loaded:
             _config.load_base_config()
 
+        # Keep eval runs bounded: one generation per prompt and a small prompt cap
+        # per probe. Without this, families like ``dan`` (e.g. DanInTheWild) issue
+        # hundreds of prompts x5 generations of real LLM calls.
+        _config.run.generations = 1
+        _config.run.soft_probe_prompt_cap = 5
+
         generator = PipelineGenerator(self._pipeline)
 
         # Expand probe family names to probe instances
